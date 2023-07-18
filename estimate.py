@@ -4,11 +4,17 @@ import pandas as pd
 
 
 def est_drig(data, gamma, y_idx=-1, del_idx=None, unif_weight=False):
-    """
-    DRIG estimator
-    Arguments:
-        data: a list of numpy arrays, where the first element is the observational environment
-        weight: whether we use the sample size as the weights
+    """DRIG estimator.
+
+    Args:
+        data (list of numpy arrays): a list of data from all environments, where the first element is the observational environment.
+        gamma (float): hyperparameter in DRIG.
+        y_idx (int, optional): index of the response variable. Defaults to -1.
+        del_idx (int, optional): index of the variable to exclude. Defaults to None.
+        unif_weight (bool, optional): whether to use uniform weights. Defaults to False.
+
+    Returns:
+        numpy array: estimated coefficients.
     """
     if del_idx is None:
         del_idx = y_idx
@@ -36,6 +42,15 @@ def est_drig(data, gamma, y_idx=-1, del_idx=None, unif_weight=False):
     return np.linalg.inv(G).dot(Z)
 
 def pop_drig(grams, gamma):
+    """DRIG estimator at the population level.
+
+    Args:
+        grams (list of numpy arrays): a list of gram matrices.
+        gamma (float): hyperparameter.
+
+    Returns:
+        numpy array: estimated coefficients.
+    """
     m = len(grams)
     gram_x = []
     gram_xy = []
@@ -48,6 +63,12 @@ def pop_drig(grams, gamma):
     return np.linalg.inv(G).dot(Z)
 
 def est_drig_adap(data, data_test, y_idx=-1, del_idx=None, unif_weight=False):
+    """DRIG-A estimator.
+
+    Args:
+        data (list of numpy arrays): a list of data from all environments.
+        data_test (numpy array): test data.
+    """
     if del_idx is None:
         del_idx = y_idx
     ## training stats
@@ -92,6 +113,8 @@ def est_drig_adap(data, data_test, y_idx=-1, del_idx=None, unif_weight=False):
     return np.linalg.inv(G).dot(Z)
 
 def est_anchor(data, gamma, y_idx=-1, del_idx=None, unif_weight=False):
+    """Anchor regression estimator.
+    """
     if del_idx is None:
         del_idx = y_idx
     m = len(data)
@@ -120,6 +143,8 @@ def est_anchor(data, gamma, y_idx=-1, del_idx=None, unif_weight=False):
     return np.linalg.inv(G).dot(Z)
 
 def pop_anchor(grams, mus, gamma):
+    """Anchor regression at population.
+    """
     m = len(grams)
     gram_x = [] ## E[x^T]
     mu_x = [] ## E[X]E[X^T]
@@ -138,6 +163,19 @@ def pop_anchor(grams, mus, gamma):
         
 
 def est(data, method="drig", gamma=None, y_idx=-1, del_idx=None, unif_weight=False):
+    """General estimation function. 
+
+    Args:
+        data (list of numpy arrays): a list of data from all environments, where the first element is the observational environment.
+        method (str, optional): estimation method. Defaults to "drig".
+        gamma (float): hyperparameter in DRIG.
+        y_idx (int, optional): index of the response variable. Defaults to -1.
+        del_idx (int, optional): index of the variable to exclude. Defaults to None.
+        unif_weight (bool, optional): whether to use uniform weights. Defaults to False.
+
+    Returns:
+        numpy array: estimated coefficients.
+    """
     if del_idx is None:
         del_idx = y_idx
     if method == "ols_pool":
@@ -156,10 +194,10 @@ def est(data, method="drig", gamma=None, y_idx=-1, del_idx=None, unif_weight=Fal
     return b
 
 def test_mse(data, b, y_idx=-1, del_idx=None):
-    """
-    Test on a single dataset
+    """Test MSE on a single dataset.
+    
     Arguments:
-        data: a numpy array
+        data (numpy array): test data
     """
     if del_idx is None:
         del_idx = y_idx
@@ -169,11 +207,11 @@ def test_mse(data, b, y_idx=-1, del_idx=None):
     return ((y - y_pred)**2).mean()
 
 def test_mse_list(data, b, pooled=False, stats_only=False, y_idx=-1, del_idx=None):
-    """
-    Test on multiple datasets
+    """Test on multiple datasets.
+    
     Arguments:
-        data: list of numpy arrays
-        pooled: MSE on pooled data
+        data (list of numpy arrays): a list of test data.
+        pooled (bool, optional): whether to compute the MSE on pooled data. Default to False.
     """
     if del_idx is None:
         del_idx = y_idx
@@ -188,10 +226,10 @@ def test_mse_list(data, b, pooled=False, stats_only=False, y_idx=-1, del_idx=Non
         return errors
 
 def test_mse_pop(gram, b):
-    """
-    Population test MSE on a single test
+    """Population test MSE on a single test.
+    
     Arguments:
-        gram: gram matrix of test data
+        gram (numpy array): gram matrix of test data
     """
     return gram[-1, -1] + b.T @ gram[:-1, :-1] @ b - 2 * b.T @ gram[:-1, -1]
 
@@ -211,12 +249,12 @@ def eval_test(b, method, results, perturb_stren, test_grams, train_id):
     })], ignore_index=True)
     
 def est_oracle_gamma(data_train, method, gram_test, gamma_l=0, gamma_u=1000, gamma_step=1):
-    """
-    Find the best gamma based on test performance
+    """Find the best gamma based on test performance
+    
     Arguments:
-        data_train: list of finite sample training data
-        method: "drig" or "anchor"
-        gram_test: gram matrix of test data
+        data_train (list of numpy arrays): list of finite sample training data
+        method (str): "drig" or "anchor"
+        gram_test (numpy array): gram matrix of test data
     """
     
     gamma = gamma_l
@@ -230,8 +268,7 @@ def est_oracle_gamma(data_train, method, gram_test, gamma_l=0, gamma_u=1000, gam
     return gamma, error
 
 def est_oracle_gamma_list(data_train, method, grams_test, gamma_l=0, gamma_u=1000, gamma_step=1):
-    """
-    est_oracle_gamma for a list of test gram matrices
+    """Apply `est_oracle_gamma` to a list of test gram matrices
     """
     gammas = []; errors = []
     for gram_test in grams_test:
