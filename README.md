@@ -1,6 +1,6 @@
 # Distributional Robustness via Invariant Gradients (DRIG)
 
-This repository contains the code for the method *Distributional Robustness via Invariant Gradients (DRIG)* from the paper "[*Causality-oriented robustness: exploiting general additive interventions*]()" by Xinwei Shen, Peter Bühlmann, and Armeen Taeb (2023).
+This repository contains the code for the method *Distributional Robustness via Invariant Gradients (DRIG)* from the paper "[*Causality-oriented robustness: exploiting general additive interventions*](https://arxiv.org/abs/2307.10299)" by Xinwei Shen, Peter Bühlmann, and Armeen Taeb (2023).
 
 Below is a visual illustration of causality-oriented robustness.
 
